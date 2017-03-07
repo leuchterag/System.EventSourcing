@@ -1,0 +1,19 @@
+<Project>
+  <Import Project="dependencies.props" />
+  <Import Project="..\version.props" />
+
+  <PropertyGroup>
+    <Product>Leuchter EventSourcing Framework</Product>
+    <RepositoryUrl>https://tfs.leuchterag.ch/tfs/Individual/System/_git/System.EventSourcing</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <VersionSuffix Condition="'$(VersionSuffix)'!='' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
+    <Authors>Docugate Core Team</Authors>
+    <Company>Leuchter AG</Company>
+    <Description>Base class library for EventSourcing</Description>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)'=='.NETFramework' AND '$(OutputType)'=='library'">
+    <PackageReference Include="NETStandard.Library" Version="$(NetStandardImplicitPackageVersion)" />
+  </ItemGroup>
+
+</Project>
