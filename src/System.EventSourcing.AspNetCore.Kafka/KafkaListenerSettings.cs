@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace System.EventSourcing.AspNetCore.Kafka
 {
@@ -39,8 +37,13 @@ namespace System.EventSourcing.AspNetCore.Kafka
 
         public IEnumerable<string> BootstrapServers
         {
-            get => this["bootstrap.servers"] as IEnumerable<string>;
-            set => this["bootstrap.servers"] = value;
+            get
+            {
+                return (this["bootstrap.servers"] as string).Split(',');
+            }
+            set => this["bootstrap.servers"] = string.Join(",", value);
         }
+
+        public IEnumerable<string> Topics { get; set; }
     }
 }

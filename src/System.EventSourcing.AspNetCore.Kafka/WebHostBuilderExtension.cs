@@ -7,12 +7,13 @@ namespace System.EventSourcing.AspNetCore.Kafka
 {
     public static class WebHostBuilderExtension
     {
-        public static IWebHostBuilder UseKafka(this IWebHostBuilder subject)
+        public static IWebHostBuilder UseKafka(this IWebHostBuilder subject, Action<KafkaListenerSettings> setup)
         {
             subject.ConfigureServices(svc =>
             {
                 svc.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
                 svc.AddTransient<IHttpContextFactory, HttpContextFactory>();
+                svc.Configure(setup);
                 svc.AddSingleton<IServer, KafkaListener>();
             });
 

@@ -3,6 +3,7 @@ using System.EventSourcing.AspNetCore.Kafka;
 using System.EventSourcing.Client;
 using System.EventSourcing.Client.Serialization;
 using System.EventSourcing.Client.Kafka;
+using System.EventSourcing.Client.Reflection;
 
 namespace SimpleEventHost
 {
@@ -10,16 +11,14 @@ namespace SimpleEventHost
     {
         static void Main()
         {
-            var client = new EventClient()
-                //.UseReflectionNameResolution()
-                .UseJsonSerialization()
-                .UseKafka("system.events", "localhost:9092");
-
-            client.Publish(new TEvent { T = "test" }).Wait();
-
             var host = new WebHostBuilder()
-                .UseKafka()
-                //.UseKestrel()
+                .UseKafka(
+                    x =>
+                    {
+                        x.BootstrapServers = new[] { "localhost:9092" };
+                        x.Topics = new[] { "system.events" };
+                        x.ConsumerGroup = "services.sample";
+                    })
                 .UseStartup<Startup>()
                 .Build();
 
