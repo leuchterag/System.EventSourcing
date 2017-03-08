@@ -10,7 +10,7 @@ namespace SimpleEventHost
     [Route("/v1/events/user")]
     public class TestController
     {
-        public TestController(IService test)
+        public TestController()
         {
 
         }

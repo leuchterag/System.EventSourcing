@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using System.EventSourcing.AspNetCore.Kafka;
-using System.EventSourcing.Client;
-using System.EventSourcing.Client.Serialization;
 using System.EventSourcing.Client.Kafka;
-using System.EventSourcing.Client.Reflection;
 
 namespace SimpleEventHost
 {
@@ -11,6 +8,11 @@ namespace SimpleEventHost
     {
         static void Main()
         {
+            var webhost = new WebHostBuilder()
+                .UseKestrel()
+                .UseStartup<StartupWeb>()
+                .Build();
+
             var host = new WebHostBuilder()
                 .UseKafka(
                     x =>
@@ -19,10 +21,12 @@ namespace SimpleEventHost
                         x.Topics = new[] { "system.events" };
                         x.ConsumerGroup = "services.sample";
                     })
-                .UseStartup<Startup>()
+                .UseStartup<Startup>(x => { return webhost.Services; }, x => { })
                 .Build();
+            
 
             host.Run();
+
         }
     }
 }

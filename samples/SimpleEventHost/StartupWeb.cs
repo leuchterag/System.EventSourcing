@@ -5,13 +5,8 @@ using Microsoft.Extensions.Logging;
 
 namespace SimpleEventHost
 {
-    public class Startup
+    public class StartupWeb
     {
-        //public Startup(IRedirectionTarget target)
-        //{
-
-        //}
-
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvcCore()
