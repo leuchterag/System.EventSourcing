@@ -8,9 +8,9 @@ namespace SimpleEventHost
     }
 
     [Route("/v1/events/user")]
-    public class TestController
+    public class TestProjectionController
     {
-        public TestController()
+        public TestProjectionController(IService dummy)
         {
 
         }

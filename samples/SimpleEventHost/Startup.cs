@@ -2,21 +2,25 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.EventSourcing.AspNetCore.Hosting;
 
 namespace SimpleEventHost
 {
     public class Startup
     {
-        //public Startup(IRedirectionTarget target)
-        //{
+        readonly IRedirectionTarget _target;
 
-        //}
+        public Startup(IRedirectionTarget target)
+        {
+            _target = target;
+        }
 
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvcCore()
                 .AddJsonFormatters();
-            services.AddTransient<IService, DummyService>();
+
+            services.AddSingleton(x => _target.Provider.GetService<IService>());
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
