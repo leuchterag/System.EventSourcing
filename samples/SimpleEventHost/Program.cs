@@ -25,7 +25,6 @@ namespace SimpleEventHost
                 .EnableRedirection(webhost.Services)
                 .UseStartup<Startup>()
                 .Build();
-            
 
             new[] { webhost, host }.Run();
         }

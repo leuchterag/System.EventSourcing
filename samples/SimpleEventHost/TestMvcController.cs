@@ -10,7 +10,7 @@ namespace SimpleEventHost
         public string T1 { get; set; }
     }
 
-    [Route("/v1/test/")]
+    [Route("/v1/test")]
     public class TestMvcController
     {
         public TestMvcController(IService dummy)

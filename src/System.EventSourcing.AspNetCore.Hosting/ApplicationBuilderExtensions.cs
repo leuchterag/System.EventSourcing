@@ -9,7 +9,7 @@ namespace System.EventSourcing.AspNetCore.Hosting
         {
             subject.Use((x, n) =>
             {
-                if (x.Request.Path.HasValue && !x.Request.QueryString.Value.StartsWith("v1/events/", System.StringComparison.OrdinalIgnoreCase))
+                if (x.Request.Path.HasValue && x.Request.Path.Value.StartsWith("/v1/events", StringComparison.OrdinalIgnoreCase))
                 {
                     x.Response.StatusCode = 404;
                     return Task.CompletedTask;

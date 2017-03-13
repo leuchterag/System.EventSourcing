@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.EventSourcing.AspNetCore.Hosting;
 using System.Threading.Tasks;
 
 namespace SimpleEventHost
@@ -20,16 +21,7 @@ namespace SimpleEventHost
             loggerFactory.AddConsole();
             loggerFactory.AddDebug();
 
-            app.Use((x, n) =>
-            {
-                if (x.Request.Path.HasValue && !x.Request.QueryString.Value.StartsWith("v1/events/", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    x.Response.StatusCode = 404;
-                    return Task.CompletedTask;
-                }
-
-                return n();
-            });
+            app.DenyEventSourcing();
             
             app.UseMvc();
         }
