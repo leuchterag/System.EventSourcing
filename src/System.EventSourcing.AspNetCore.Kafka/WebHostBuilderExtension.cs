@@ -12,14 +12,12 @@ namespace System.EventSourcing.AspNetCore.Kafka
         {
             subject.ConfigureServices(svc =>
             {
-                svc.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
-                svc.AddTransient<IHttpContextFactory, HttpContextFactory>();
-                svc.Configure(setup);
-                svc.AddSingleton<IServer, KafkaListener>();
+                svc.UseKafka(setup);
             });
 
             return subject;
         }
+
 
         public static IWebHostBuilder EnableRedirection(this IWebHostBuilder hostBuilder, IServiceProvider provider)
         {

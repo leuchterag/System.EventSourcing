@@ -15,13 +15,13 @@ namespace SimpleEventHost
                 .Build();
 
             var host = new WebHostBuilder()
-                .UseKafka(
-                    x =>
-                    {
-                        x.BootstrapServers = new[] { "localhost:9092" };
-                        x.Topics = new[] { "system.events" };
-                        x.ConsumerGroup = "services.sample";
-                    })
+                //.UseKafka(
+                //    x =>
+                //    {
+                //        x.BootstrapServers = new[] { "localhost:9092" };
+                //        x.Topics = new[] { "system.events" };
+                //        x.ConsumerGroup = "services.sample";
+                //    })
                 .EnableRedirection(webhost.Services)
                 .UseStartup<Startup>()
                 .Build();
