@@ -42,6 +42,10 @@
     <ProjectReference Include="..\System.EventSourcing.Kafka\System.EventSourcing.Kafka.csproj" />
     <ProjectReference Include="..\System.EventSourcing\System.EventSourcing.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="SourceLink.Test" Version="2.1.0" />
+  </ItemGroup>
   
 
 </Project>
