@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using System.EventSourcing.Kafka.Serialization;
 using System.Linq;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace System.EventSourcing.AspNetCore.Kafka
 {
@@ -36,16 +37,18 @@ namespace System.EventSourcing.AspNetCore.Kafka
         string _pattern = @"^(?<subject>[a-zA-Z0-9_]*)\.(?<action>[a-zA-Z0-9_]*)$";
         readonly Regex _regex;
         readonly KafkaListenerSettings _config;
+        readonly ILogger _logger;
 
         IObservable<Message<string, byte[]>> _eventPipeline;
 
         public IFeatureCollection Features { get; set; } = new FeatureCollection();
 
-        public KafkaListener(IServiceScopeFactory scopeFactory, IOptions<KafkaListenerSettings> settings)
+        public KafkaListener(IServiceScopeFactory scopeFactory, IOptions<KafkaListenerSettings> settings, ILogger<KafkaListener> logger)
         {
             _scopeFactory = scopeFactory;
             _regex = new Regex(_pattern);
             _config = settings.Value;
+            _logger = logger;
         }
 
         public void Dispose()
@@ -57,13 +60,33 @@ namespace System.EventSourcing.AspNetCore.Kafka
         public void Start<TContext>(IHttpApplication<TContext> application)
         {
             cancellationSrc = new CancellationTokenSource();
-
             kafka_consumer = new Consumer<string, byte[]>(_config, new StringDeserializer(Encoding.UTF8), new ByteDeserializer());
 
-            kafka_consumer.OnPartitionsAssigned += (_, list) => { kafka_consumer.Assign(list); };
-            kafka_consumer.OnPartitionEOF += (_, end) => Console.WriteLine($"End of Topic {end.Topic} partition {end.Partition}, next offset {end.Offset}");
+            kafka_consumer.OnPartitionsAssigned += 
+                (_, parts) =>
+                {
+                    _logger.LogInformation($"Consumer was assigned to topics: {string.Join(" ,", parts)}");
+                    kafka_consumer.Assign(parts);
+                };
 
-            kafka_consumer.Subscribe(_config.Topics.ToList().First());
+            kafka_consumer.OnPartitionsRevoked += 
+                (_, parts) =>
+                {
+                    _logger.LogInformation($"Consumer was unassigned from topics: {string.Join(" ,", parts)}");
+                    kafka_consumer.Unassign();
+                };
+
+            kafka_consumer.OnPartitionEOF += (_, end) => _logger.LogInformation($"End of Topic {end.Topic} partition {end.Partition} reached, next offset {end.Offset}");
+
+            kafka_consumer.OnError +=
+                (_, error) =>
+                {
+                    _logger.LogError($"Listener failed: {error.Code} - {error.Reason}");
+                };
+
+            kafka_consumer.OnConsumeError += (_, error) => { };
+
+            kafka_consumer.Subscribe(_config.Topics.ToList());
 
             _eventPipeline = Observable
                 .FromEventPattern<Message<string, byte[]>>(
@@ -124,7 +147,11 @@ namespace System.EventSourcing.AspNetCore.Kafka
                 {
                     await application.ProcessRequestAsync(x);
                 })
-            .Subscribe(x => { }, ex => { }, () => { }, cancellationSrc.Token));
+            .Subscribe(
+                    x => { },
+                    ex => { _logger.LogInformation($"Encountered error while processing message: {ex.Message}"); },
+                    () => { _logger.LogInformation($"Stream processing of messages from kafka completed."); },
+                    cancellationSrc.Token));
 
             listener = Task.Run(() =>
             {
