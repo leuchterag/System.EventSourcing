@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\build\common.props" />
+  <Import Project="..\..\build\sourcelink.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.5</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\System.EventSourcing.Authorization\System.EventSourcing.Authorization.csproj" />
+    <ProjectReference Include="..\System.EventSourcing.Client\System.EventSourcing.Client.csproj" />
+    <ProjectReference Include="..\System.EventSourcing\System.EventSourcing.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -17,6 +17,8 @@ using System.EventSourcing.Kafka.Serialization;
 using System.Linq;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System.EventSourcing.Kafka;
 
 namespace System.EventSourcing.AspNetCore.Kafka
 {
@@ -105,14 +107,23 @@ namespace System.EventSourcing.AspNetCore.Kafka
                         var subject = match.Groups["subject"].Value;
                         var action = match.Groups["action"].Value;
 
+                        var evnt = JsonConvert.DeserializeObject<KafkaEvent>(Encoding.UTF8.GetString(x.Value));
+
+                        var headers = new HeaderDictionary { { "Content-Type", "application/json" } };
+
+                        foreach (var tag in evnt.Tags)
+                        {
+                            headers.Add(tag.Key, tag.Value);
+                        }
+
                         var requestFeature = new HttpRequestFeature
                         {
                             Method = event_action_map[action],
                             Path = $"/v1/events/{subject}",
-                            Body = new MemoryStream(x.Value),
+                            Body = new MemoryStream(evnt.Content),
                             Protocol = "http",
                             Scheme = "http",
-                            Headers = new HeaderDictionary { { "Content-Type", "application/json" } }
+                            Headers = headers
                         };
 
                         var requestFeatures = new FeatureCollection();
@@ -126,7 +137,7 @@ namespace System.EventSourcing.AspNetCore.Kafka
 
                             var httpContext = new DefaultHttpContext();
 
-                            requestFeatures.Set<IHttpResponseFeature>(new HttpResponseFeature
+                            requestFeatures.Set<IHttpResponseFeature>(new FakeHttpReponseFeature
                             {
                                 Body = new MemoryStream()
                             });
@@ -145,7 +156,15 @@ namespace System.EventSourcing.AspNetCore.Kafka
             .Select(
                 async x =>
                 {
-                    await application.ProcessRequestAsync(x);
+                    try
+                    {
+                        await application.ProcessRequestAsync(x);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogWarning($"failed to process a message: {e.Message}");
+                        throw;
+                    }
                 })
             .Subscribe(
                     x => { },

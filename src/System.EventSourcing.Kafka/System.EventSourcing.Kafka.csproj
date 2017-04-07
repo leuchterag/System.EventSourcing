@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <PackageReference Include="Confluent.Kafka" Version="0.9.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
   </ItemGroup>
 
 </Project>

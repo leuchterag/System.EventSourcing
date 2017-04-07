@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\build\common.props" />
+  <Import Project="..\..\build\sourcelink.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.5</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IdentityModel" Version="2.7.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="1.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\System.EventSourcing.Authorization\System.EventSourcing.Authorization.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.EventSourcing.Client;
 using System.Text;
 
 namespace SimpleEventHost
@@ -11,17 +13,20 @@ namespace SimpleEventHost
     }
 
     [Route("/v1/test")]
-    public class TestMvcController
+    [Authorize]
+    public class TestMvcController : Controller
     {
-        public TestMvcController(IService dummy)
-        {
+        readonly IEventClient _client;
 
+        public TestMvcController(IService dummy, IEventClient client)
+        {
+            _client = client;
         }
 
         [HttpPut]
         public void Test([FromBody] Tf1 obj)
         {
-
+            _client.Publish(new TEvent());
         }
     }
 }

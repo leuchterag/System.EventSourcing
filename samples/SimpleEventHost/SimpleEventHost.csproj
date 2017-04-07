@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.1" />
@@ -14,8 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\System.EventSourcing.AspNetCore.Hosting.Authorization\System.EventSourcing.AspNetCore.Hosting.Authorization.csproj" />
     <ProjectReference Include="..\..\src\System.EventSourcing.AspNetCore.Hosting\System.EventSourcing.AspNetCore.Hosting.csproj" />
     <ProjectReference Include="..\..\src\System.EventSourcing.AspNetCore.Kafka\System.EventSourcing.AspNetCore.Kafka.csproj" />
+    <ProjectReference Include="..\..\src\System.EventSourcing.Authorization\System.EventSourcing.Authorization.csproj" />
+    <ProjectReference Include="..\..\src\System.EventSourcing.Client.Authorization\System.EventSourcing.Client.Authorization.csproj" />
     <ProjectReference Include="..\..\src\System.EventSourcing.Client.Kafka\System.EventSourcing.Client.Kafka.csproj" />
     <ProjectReference Include="..\..\src\System.EventSourcing.Client\System.EventSourcing.Client.csproj" />
     <ProjectReference Include="..\..\src\System.EventSourcing\System.EventSourcing.csproj" />

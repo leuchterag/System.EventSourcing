@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.EventSourcing.AspNetCore.Hosting;
+using System.EventSourcing.AspNetCore.Hosting.Authorization;
 using System.EventSourcing.AspNetCore.Kafka;
 
 namespace SimpleEventHost
@@ -19,6 +20,7 @@ namespace SimpleEventHost
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvcCore()
+                .AddAuthorization()
                 .AddJsonFormatters();
 
             // Add Kafka server and settings
@@ -38,6 +40,17 @@ namespace SimpleEventHost
             loggerFactory.AddConsole();
             loggerFactory.AddDebug();
             
+            app.UseImpersonationBearer("http://localhost:6001", "api.client", "secret");
+
+            app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
+            {
+                Authority = "http://localhost:6001",
+                RequireHttpsMetadata = false,
+                EnableCaching = false,
+                ApiName = "api",
+                ApiSecret = "secret"
+            });
+
             app.UseMvc();
         }
     }
