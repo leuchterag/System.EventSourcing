@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.EventSourcing;
 using System.EventSourcing.AspNetCore.Hosting;
 using System.EventSourcing.AspNetCore.Hosting.Authorization;
 using System.EventSourcing.Client;

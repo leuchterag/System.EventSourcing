@@ -13,7 +13,7 @@ namespace SimpleEventHost
     }
 
     [Route("/v1/test")]
-    [Authorize]
+    //[Authorize]
     public class TestMvcController : Controller
     {
         readonly IEventClient _client;

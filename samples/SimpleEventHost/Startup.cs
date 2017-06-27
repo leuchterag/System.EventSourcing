@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.EventSourcing;
 using System.EventSourcing.AspNetCore.Hosting;
 using System.EventSourcing.AspNetCore.Hosting.Authorization;
 using System.EventSourcing.AspNetCore.Kafka;
@@ -33,6 +34,9 @@ namespace SimpleEventHost
                 });
 
             services.AddSingleton(x => _target.Provider.GetService<IService>());
+
+            services.UseEventSourcing()
+                .WithProjection<TestProjection>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -40,16 +44,16 @@ namespace SimpleEventHost
             loggerFactory.AddConsole();
             loggerFactory.AddDebug();
             
-            app.UseImpersonationBearer("http://localhost:6001", "api.client", "secret");
+            //app.UseImpersonationBearer("http://localhost:6001", "api.client", "secret");
 
-            app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
-            {
-                Authority = "http://localhost:6001",
-                RequireHttpsMetadata = false,
-                EnableCaching = false,
-                ApiName = "api",
-                ApiSecret = "secret"
-            });
+            //app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
+            //{
+            //    Authority = "http://localhost:6001",
+            //    RequireHttpsMetadata = false,
+            //    EnableCaching = false,
+            //    ApiName = "api",
+            //    ApiSecret = "secret"
+            //});
 
             app.UseMvc();
         }

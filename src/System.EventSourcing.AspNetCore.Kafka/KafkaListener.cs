@@ -24,13 +24,6 @@ namespace System.EventSourcing.AspNetCore.Kafka
 {
     class KafkaListener : IServer
     {
-        static readonly IDictionary<string, string> event_action_map = new Dictionary<string, string>()
-        {
-            { "created", "PUT" },
-            { "deleted", "DELETE" },
-            { "updated", "POST" },
-            { "added", "PUT" }
-        };
 
         Task listener;
         CancellationTokenSource cancellationSrc;
@@ -118,8 +111,8 @@ namespace System.EventSourcing.AspNetCore.Kafka
 
                         var requestFeature = new HttpRequestFeature
                         {
-                            Method = event_action_map[action],
-                            Path = $"/v1/events/{subject}",
+                            Method = "PUT",
+                            Path = $"/v1/events/{subject}.{action}",
                             Body = new MemoryStream(evnt.Content),
                             Protocol = "http",
                             Scheme = "http",
