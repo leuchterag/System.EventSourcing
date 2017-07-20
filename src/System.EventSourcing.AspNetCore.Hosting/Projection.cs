@@ -9,22 +9,34 @@ namespace System.EventSourcing.AspNetCore.Hosting
     {
         private JsonSerializer _serializer = new JsonSerializer();
 
-        public override Task Handle(HttpContext ctx)
+        public override async Task Handle(HttpContext ctx)
         {
-            var payload = DeserializeFromStream(ctx.Request.Body);
-
-            return Handle(payload);
+            var payload = await DeserializeFromStream(ctx.Request.Body);
+            await Handle(payload);
         }
 
-        public static TEvent DeserializeFromStream(Stream stream)
+        public static async Task<TEvent> DeserializeFromStream(Stream stream)
         {
-            var serializer = new JsonSerializer();
-
-            using (var sr = new StreamReader(stream))
-            using (var jsonTextReader = new JsonTextReader(sr))
+            using (var memorySteam = new MemoryStream())
             {
-                return serializer.Deserialize<TEvent>(jsonTextReader);
+                lock(stream)
+                {
+                    var position = stream.Position;
+
+                    stream.CopyTo(memorySteam);
+
+                    stream.Seek(position, SeekOrigin.Begin);
+
+                    var serializer = new JsonSerializer();
+
+                    using (var sr = new StreamReader(memorySteam))
+                    using (var jsonTextReader = new JsonTextReader(sr))
+                    {
+                        return serializer.Deserialize<TEvent>(jsonTextReader);
+                    }
+                }
             }
+
         }
 
         public abstract Task Handle(TEvent @event);
