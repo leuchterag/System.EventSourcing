@@ -26,6 +26,7 @@ namespace System.EventSourcing.AspNetCore.Hosting
                     stream.CopyTo(memorySteam);
 
                     stream.Seek(position, SeekOrigin.Begin);
+                    memorySteam.Seek(position, SeekOrigin.Begin);
 
                     var serializer = new JsonSerializer();
 
