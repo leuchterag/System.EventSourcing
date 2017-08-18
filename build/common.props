@@ -12,8 +12,8 @@
     <Description>Base class library for EventSourcing</Description>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)'=='.NETFramework' AND '$(OutputType)'=='library'">
+  <!--<ItemGroup Condition="'$(TargetFrameworkIdentifier)'=='.NETFramework' AND '$(OutputType)'=='library'">
     <PackageReference Include="NETStandard.Library" Version="$(NetStandardImplicitPackageVersion)" />
-  </ItemGroup>
+  </ItemGroup>-->
 
 </Project>
