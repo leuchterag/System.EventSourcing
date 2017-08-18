@@ -16,8 +16,4 @@
     <ProjectReference Include="..\System.EventSourcing.Authorization\System.EventSourcing.Authorization.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Update="SourceLink.Test" Version="2.1.2" />
-  </ItemGroup>
-
 </Project>

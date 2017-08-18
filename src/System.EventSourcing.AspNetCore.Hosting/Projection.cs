@@ -15,7 +15,7 @@ namespace System.EventSourcing.AspNetCore.Hosting
             await Handle(payload);
         }
 
-        public static async Task<TEvent> DeserializeFromStream(Stream stream)
+        public static Task<TEvent> DeserializeFromStream(Stream stream)
         {
             using (var memorySteam = new MemoryStream())
             {
@@ -33,7 +33,8 @@ namespace System.EventSourcing.AspNetCore.Hosting
                     using (var sr = new StreamReader(memorySteam))
                     using (var jsonTextReader = new JsonTextReader(sr))
                     {
-                        return serializer.Deserialize<TEvent>(jsonTextReader);
+                        var result = serializer.Deserialize<TEvent>(jsonTextReader);
+                        return Task.FromResult(result);
                     }
                 }
             }
