@@ -156,7 +156,7 @@ namespace System.EventSourcing.AspNetCore.Kafka
                     }
                     catch (Exception e)
                     {
-                        _logger.LogWarning($"failed to process a message: {e.Message}");
+                        _logger.LogWarning($"failed to process a message: {e.Message} \n {e.StackTrace}");
                         throw;
                     }
                 })
