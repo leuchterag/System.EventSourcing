@@ -55,6 +55,7 @@ namespace System.EventSourcing.AspNetCore.Kafka
         public void Start<TContext>(IHttpApplication<TContext> application)
         {
             cancellationSrc = new CancellationTokenSource();
+
             kafka_consumer = new Consumer<string, byte[]>(_config, new StringDeserializer(Encoding.UTF8), new ByteDeserializer());
 
             kafka_consumer.OnPartitionsAssigned += 

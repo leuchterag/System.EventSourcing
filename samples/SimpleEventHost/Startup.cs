@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.EventSourcing;
 using System.EventSourcing.AspNetCore.Hosting;
 using System.EventSourcing.AspNetCore.Hosting.Authorization;
@@ -30,7 +31,11 @@ namespace SimpleEventHost
                 {
                     x.BootstrapServers = new[] { "localhost:9092" };
                     x.Topics = new[] { "system.events" };
-                    x.ConsumerGroup = "services.sample";
+                    x.ConsumerGroup = "services.sample1";
+                    x.DefaultTopicConfig = new Dictionary<string, object>()
+                    {
+                        { "auto.offset.reset", "smallest" }
+                    };
                 });
 
             services.AddSingleton(x => _target.Provider.GetService<IService>());
