@@ -99,25 +99,24 @@ namespace System.EventSourcing.AspNetCore.Kafka
             kafka_consumer.OnConsumeError += (_, error) => { };
 
             kafka_consumer.Subscribe(_config.Topics.ToList());
-
-            var _eventPipeline = new Subject<Message<string, byte[]>>();
-
-            var canread = new AutoResetEvent(true);
-
+            
             listener = Task.Run(() =>
             {
-                _eventPipeline
-                .Select(
-                    x =>
+                while (!cancellationSrc.Token.IsCancellationRequested)
+                {
+                    // Consume from stream in order
+                    kafka_consumer.Consume(out var msg, TimeSpan.FromSeconds(1));
+
+                    if (msg != null)
                     {
-                        var match = _regex.Match(x.Key);
+                        var match = _regex.Match(msg.Key);
 
                         if (match.Success)
                         {
                             var subject = match.Groups["subject"].Value;
                             var action = match.Groups["action"].Value;
 
-                            var evnt = JsonConvert.DeserializeObject<KafkaEvent>(Encoding.UTF8.GetString(x.Value));
+                            var evnt = JsonConvert.DeserializeObject<KafkaEvent>(Encoding.UTF8.GetString(msg.Value));
 
                             var headers = new HeaderDictionary { { "Content-Type", "application/json" } };
 
@@ -157,54 +156,23 @@ namespace System.EventSourcing.AspNetCore.Kafka
 
                                 ctx.HttpContext = httpContext;
 
-                                return (TContext)Convert.ChangeType(ctx, typeof(TContext));
+                                var newContext = (TContext)Convert.ChangeType(ctx, typeof(TContext));
+
+                                try
+                                {
+                                    application.ProcessRequestAsync(newContext).Wait();
+                                }
+                                catch (Exception e)
+                                {
+                                    _logger.LogWarning($"failed to process a message: {e.Message} \n {e.StackTrace}");
+                                    throw;
+                                }
                             }
                         }
-
-                        return default(TContext);
-                    })
-                    .Select(
-                        async x =>
+                        else
                         {
-                            try
-                            {
-                                await application.ProcessRequestAsync(x);
-                            }
-                            catch (Exception e)
-                            {
-                                _logger.LogWarning($"failed to process a message: {e.Message} \n {e.StackTrace}");
-                                throw;
-                            }
-                        })
-                    .Subscribe(
-                            async x =>
-                            {
-                                canread.Set();
-                                await kafka_consumer.CommitAsync();
-                            },
-                            async ex =>
-                            {
-                                _logger.LogInformation($"Encountered error while processing message: {ex.Message} \n {ex.StackTrace}");
-                                canread.Set();
-                                await kafka_consumer.CommitAsync();
-                            },
-                            () =>
-                            {
-                                _logger.LogInformation($"Stream processing of messages from kafka completed.");
-                            },
-                            cancellationSrc.Token);
-
-                    });
-
-            listener = Task.Run(() =>
-            {
-                while (!cancellationSrc.Token.IsCancellationRequested)
-                {
-                    kafka_consumer.Consume(out var msg, TimeSpan.FromSeconds(1));
-                    if(msg != null)
-                    {
-                        canread.WaitOne();
-                        _eventPipeline.OnNext(msg);
+                            _logger.LogWarning($"failed to parse message correctly");
+                        }
                     }
                 }
             });
