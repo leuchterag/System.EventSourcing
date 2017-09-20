@@ -31,10 +31,10 @@ namespace SimpleEventHost
                 {
                     x.BootstrapServers = new[] { "localhost:9092" };
                     x.Topics = new[] { "system.events" };
-                    x.ConsumerGroup = "services.sample1";
+                    x.ConsumerGroup = "services.sample";
                     x.DefaultTopicConfig = new Dictionary<string, object>()
                     {
-                        { "auto.offset.reset", "smallest" }
+                        { "auto.offset.reset", "earliest" }
                     };
                 });
 
