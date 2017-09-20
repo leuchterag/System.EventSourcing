@@ -19,6 +19,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.EventSourcing.Kafka;
+using System.Reactive.Subjects;
 
 namespace System.EventSourcing.AspNetCore.Kafka
 {
@@ -99,21 +100,13 @@ namespace System.EventSourcing.AspNetCore.Kafka
 
             kafka_consumer.Subscribe(_config.Topics.ToList());
 
-            _eventPipeline = Observable
-                .FromEventPattern<Message<string, byte[]>>(
-                    h => kafka_consumer.OnMessage += h,
-                    h => kafka_consumer.OnMessage -= h)
-                .Select(x => x.EventArgs);
+            var _eventPipeline = new Subject<Message<string, byte[]>>();
 
-
-
+            var canread = new AutoResetEvent(true);
 
             listener = Task.Run(() =>
             {
-                var canread = new AutoResetEvent(true);
-
                 _eventPipeline
-                .Do(msg => canread.WaitOne())
                 .Select(
                     x =>
                     {
@@ -207,7 +200,12 @@ namespace System.EventSourcing.AspNetCore.Kafka
             {
                 while (!cancellationSrc.Token.IsCancellationRequested)
                 {
-                    kafka_consumer.Poll(TimeSpan.FromSeconds(1));
+                    kafka_consumer.Consume(out var msg, TimeSpan.FromSeconds(1));
+                    if(msg != null)
+                    {
+                        canread.WaitOne();
+                        _eventPipeline.OnNext(msg);
+                    }
                 }
             });
         }
