@@ -109,69 +109,76 @@ namespace System.EventSourcing.AspNetCore.Kafka
 
                     if (msg != null)
                     {
-                        var match = _regex.Match(msg.Key);
-
-                        if (match.Success)
+                        try
                         {
-                            var subject = match.Groups["subject"].Value;
-                            var action = match.Groups["action"].Value;
+                            var match = _regex.Match(msg.Key);
 
-                            var evnt = JsonConvert.DeserializeObject<KafkaEvent>(Encoding.UTF8.GetString(msg.Value));
-
-                            var headers = new HeaderDictionary { { "Content-Type", "application/json" } };
-
-                            foreach (var tag in evnt.Tags)
+                            if (match.Success)
                             {
-                                headers.Add(tag.Key, tag.Value);
+                                var subject = match.Groups["subject"].Value;
+                                var action = match.Groups["action"].Value;
+
+                                var evnt = JsonConvert.DeserializeObject<KafkaEvent>(Encoding.UTF8.GetString(msg.Value));
+
+                                var headers = new HeaderDictionary { { "Content-Type", "application/json" } };
+
+                                foreach (var tag in evnt.Tags)
+                                {
+                                    headers.Add(tag.Key, tag.Value);
+                                }
+
+                                var requestFeature = new HttpRequestFeature
+                                {
+                                    Method = "PUT",
+                                    Path = $"/v1/events/{subject}.{action}",
+                                    Body = new MemoryStream(evnt.Content),
+                                    Protocol = "http",
+                                    Scheme = "http",
+                                    Headers = headers
+                                };
+
+                                var requestFeatures = new FeatureCollection();
+                                requestFeatures.Set<IHttpRequestFeature>(requestFeature);
+
+                                var context = application.CreateContext(requestFeatures);
+
+                                if (context is Context)
+                                {
+                                    var ctx = (Context)Convert.ChangeType(context, typeof(Context));
+
+                                    var httpContext = new DefaultHttpContext();
+
+                                    requestFeatures.Set<IHttpResponseFeature>(new FakeHttpReponseFeature
+                                    {
+                                        Body = new MemoryStream()
+                                    });
+                                    requestFeatures.Set<IServiceProvidersFeature>(new RequestServicesFeature(_scopeFactory));
+
+                                    httpContext.Initialize(requestFeatures);
+
+                                    ctx.HttpContext = httpContext;
+
+                                    var newContext = (TContext)Convert.ChangeType(ctx, typeof(TContext));
+
+                                    try
+                                    {
+                                        application.ProcessRequestAsync(newContext).Wait();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        _logger.LogWarning($"failed to process a message: {e.Message} \n {e.StackTrace}");
+                                        throw;
+                                    }
+                                }
                             }
-
-                            var requestFeature = new HttpRequestFeature
+                            else
                             {
-                                Method = "PUT",
-                                Path = $"/v1/events/{subject}.{action}",
-                                Body = new MemoryStream(evnt.Content),
-                                Protocol = "http",
-                                Scheme = "http",
-                                Headers = headers
-                            };
-
-                            var requestFeatures = new FeatureCollection();
-                            requestFeatures.Set<IHttpRequestFeature>(requestFeature);
-
-                            var context = application.CreateContext(requestFeatures);
-
-                            if (context is Context)
-                            {
-                                var ctx = (Context)Convert.ChangeType(context, typeof(Context));
-
-                                var httpContext = new DefaultHttpContext();
-
-                                requestFeatures.Set<IHttpResponseFeature>(new FakeHttpReponseFeature
-                                {
-                                    Body = new MemoryStream()
-                                });
-                                requestFeatures.Set<IServiceProvidersFeature>(new RequestServicesFeature(_scopeFactory));
-
-                                httpContext.Initialize(requestFeatures);
-
-                                ctx.HttpContext = httpContext;
-
-                                var newContext = (TContext)Convert.ChangeType(ctx, typeof(TContext));
-
-                                try
-                                {
-                                    application.ProcessRequestAsync(newContext).Wait();
-                                }
-                                catch (Exception e)
-                                {
-                                    _logger.LogWarning($"failed to process a message: {e.Message} \n {e.StackTrace}");
-                                    throw;
-                                }
+                                _logger.LogWarning($"failed to parse message correctly");
                             }
                         }
-                        else
+                        catch (Exception e)
                         {
-                            _logger.LogWarning($"failed to parse message correctly");
+                            _logger.LogWarning($"general error during handling of the event occured: {e.Message} \n {e.StackTrace}");
                         }
                     }
                 }

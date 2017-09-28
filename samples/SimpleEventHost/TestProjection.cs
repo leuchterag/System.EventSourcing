@@ -15,6 +15,11 @@ namespace SimpleEventHost
 
         public override Task Handle(Tf1 @event)
         {
+            if(@event.T1 == "throw")
+            {
+                throw new Exception("Requested Exception");
+            }
+
             return Task.CompletedTask;
         }
     }
