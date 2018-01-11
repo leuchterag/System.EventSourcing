@@ -32,11 +32,7 @@ namespace System.EventSourcing.AspNetCore.Hosting
                 var hostTasks = hosts.Select(
                     host =>
                     {
-                        return Task.Run(
-                            () =>
-                            {
-                                host.Run(cts.Token);
-                            });
+                        return host.RunAsync(cts.Token);
                     });
 
                 Task.WaitAll(hostTasks.ToArray());

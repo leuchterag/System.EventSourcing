@@ -8,6 +8,6 @@ namespace System.EventSourcing
 
         public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-        public byte[] Content { get; set; }
+        public string Content { get; set; }
     }
 }

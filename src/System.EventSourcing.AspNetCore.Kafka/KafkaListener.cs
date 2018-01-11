@@ -9,7 +9,6 @@ using System.IO;
 using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Confluent.Kafka;
-using System.Collections.Generic;
 using Confluent.Kafka.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -19,7 +18,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.EventSourcing.Kafka;
-using System.Reactive.Subjects;
 
 namespace System.EventSourcing.AspNetCore.Kafka
 {
@@ -35,8 +33,6 @@ namespace System.EventSourcing.AspNetCore.Kafka
         readonly KafkaListenerSettings _config;
         readonly ILogger _logger;
 
-        IObservable<Message<string, byte[]>> _eventPipeline;
-
         public IFeatureCollection Features { get; set; } = new FeatureCollection();
 
         public KafkaListener(IServiceScopeFactory scopeFactory, IOptions<KafkaListenerSettings> settings, ILogger<KafkaListener> logger)
@@ -45,6 +41,8 @@ namespace System.EventSourcing.AspNetCore.Kafka
             _regex = new Regex(_pattern);
             _config = settings.Value;
             _logger = logger;
+
+            cancellationSrc = new CancellationTokenSource();
         }
 
         public void Dispose()
@@ -53,39 +51,22 @@ namespace System.EventSourcing.AspNetCore.Kafka
             listener.Wait();
         }
 
-        public void Start<TContext>(IHttpApplication<TContext> application)
+        public Task StartAsync<TContext>(IHttpApplication<TContext> application, CancellationToken cancellationToken)
         {
-            bool isReceiving = false;
-            cancellationSrc = new CancellationTokenSource();
-
             kafka_consumer = new Consumer<string, byte[]>(_config, new StringDeserializer(Encoding.UTF8), new ByteDeserializer());
 
-            kafka_consumer.OnPartitionsAssigned += 
+            kafka_consumer.OnPartitionsAssigned +=
                 (_, parts) =>
                 {
                     _logger.LogInformation($"Consumer was assigned to topics: {string.Join(" ,", parts)}");
                     kafka_consumer.Assign(parts);
-
-                    if(kafka_consumer.Assignment.Any())
-                    {
-                        isReceiving = true;
-                    }
                 };
 
-            kafka_consumer.OnPartitionsRevoked += 
+            kafka_consumer.OnPartitionsRevoked +=
                 (_, parts) =>
                 {
                     _logger.LogInformation($"Consumer was unassigned from topics: {string.Join(" ,", parts)}");
                     kafka_consumer.Unassign();
-
-                    if (kafka_consumer.Assignment.Any())
-                    {
-                        isReceiving = true;
-                    }
-                    else
-                    {
-                        isReceiving = false;
-                    }
                 };
 
             kafka_consumer.OnPartitionEOF += (_, end) => _logger.LogInformation($"End of Topic {end.Topic} partition {end.Partition} reached, next offset {end.Offset}");
@@ -99,8 +80,8 @@ namespace System.EventSourcing.AspNetCore.Kafka
             kafka_consumer.OnConsumeError += (_, error) => { };
 
             kafka_consumer.Subscribe(_config.Topics.ToList());
-            
-            listener = Task.Run(() =>
+
+            listener = Task.Run(async () =>
             {
                 while (!cancellationSrc.Token.IsCancellationRequested)
                 {
@@ -127,11 +108,13 @@ namespace System.EventSourcing.AspNetCore.Kafka
                                     headers.Add(tag.Key, tag.Value);
                                 }
 
+                                var body = Encoding.UTF8.GetBytes(evnt.Content.ToString());
+
                                 var requestFeature = new HttpRequestFeature
                                 {
                                     Method = "PUT",
                                     Path = $"/v1/events/{subject}.{action}",
-                                    Body = new MemoryStream(evnt.Content),
+                                    Body = new MemoryStream(body),
                                     Protocol = "http",
                                     Scheme = "http",
                                     Headers = headers
@@ -162,7 +145,7 @@ namespace System.EventSourcing.AspNetCore.Kafka
 
                                     try
                                     {
-                                        application.ProcessRequestAsync(newContext).Wait();
+                                        await application.ProcessRequestAsync(newContext);
                                     }
                                     catch (Exception e)
                                     {
@@ -183,6 +166,23 @@ namespace System.EventSourcing.AspNetCore.Kafka
                     }
                 }
             });
+
+            return Task.CompletedTask;
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            cancellationSrc.Cancel();
+
+            var awaitForceShutdown = Task.Run(() => cancellationToken.WaitHandle.WaitOne());
+
+            if(await Task.WhenAny(listener, awaitForceShutdown) == awaitForceShutdown)
+            {
+                _logger.LogWarning("Kafka listener did not terminated in the allotted time and will be forced.");
+                return;
+            }
+
+            _logger.LogInformation("Kafka listener terminated succesfully");
         }
     }
 }

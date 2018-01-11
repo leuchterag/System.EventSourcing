@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.EventSourcing.Client;
@@ -26,7 +27,7 @@ namespace SimpleEventHost
         [HttpPut]
         public void Test([FromBody] Tf1 obj)
         {
-            _client.Publish(new TEvent());
+            _client.Publish(new TEvent { T = obj.T1 });
         }
     }
 }

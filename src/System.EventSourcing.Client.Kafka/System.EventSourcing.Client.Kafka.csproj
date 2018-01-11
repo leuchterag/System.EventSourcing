@@ -4,7 +4,7 @@
   <Import Project="..\..\build\sourcelink.props" />
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.5</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +14,10 @@
   <ItemGroup>
     <ProjectReference Include="..\System.EventSourcing.Client\System.EventSourcing.Client.csproj" />
     <ProjectReference Include="..\System.EventSourcing.Kafka\System.EventSourcing.Kafka.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="SourceLink.Test" Version="2.7.4" />
   </ItemGroup>
 
 </Project>

@@ -15,4 +15,8 @@
     <ProjectReference Include="..\System.EventSourcing\System.EventSourcing.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="SourceLink.Test" Version="2.7.4" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
 namespace System.EventSourcing.Kafka
@@ -9,6 +10,6 @@ namespace System.EventSourcing.Kafka
         public IDictionary<string, string> Tags { get; set; }
 
         [JsonProperty(PropertyName = "cnt")]
-        public byte[] Content { get; set; }
+        public JToken Content { get; set; }
     }
 }

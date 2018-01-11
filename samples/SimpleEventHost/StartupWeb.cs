@@ -25,7 +25,7 @@ namespace SimpleEventHost
             services.AddSingleton<IService, DummyService>();
             
             services.AddScoped<IEventClient>(x => new EventClient()
-                .UseKafka("system.events", "localhost:9092")
+                .UseKafka("demo.events", "localhost:9092")
                 .UseReflectionNameResolution()
                 .UseJsonSerialization()
                 .UseAuthorizationForwarding(x));
@@ -38,19 +38,7 @@ namespace SimpleEventHost
             loggerFactory.AddConsole();
             loggerFactory.AddDebug();
 
-            app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
-            {
-                Authority = "http://localhost:6001",
-                RequireHttpsMetadata = false,
-                EnableCaching = false,
-                AutomaticAuthenticate = true,
-                AutomaticChallenge = true,
-                ApiName = "api",
-                ApiSecret = "secret"
-            });
-
             app.DenyEventSourcing();
-
 
             app.UseMvc();
         }

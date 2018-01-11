@@ -17,7 +17,7 @@ namespace System.EventSourcing.Client.Serialization
                     {
                         string strContent = string.Empty;
                         await Task.Run(() => strContent = JsonConvert.SerializeObject(evt));
-                        evnt.Content = Encoding.UTF8.GetBytes(strContent);
+                        evnt.Content = strContent;
                     }
                 });
 
