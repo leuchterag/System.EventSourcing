@@ -18,6 +18,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.EventSourcing.Kafka;
+using System.Web;
 
 namespace System.EventSourcing.AspNetCore.Kafka
 {
@@ -96,7 +97,7 @@ namespace System.EventSourcing.AspNetCore.Kafka
 
                             if (match.Success)
                             {
-                                var subject = match.Groups["subject"].Value;
+                                var subject = HttpUtility.UrlEncode(match.Groups["subject"].Value);
                                 var action = match.Groups["action"].Value;
 
                                 var evnt = JsonConvert.DeserializeObject<KafkaEvent>(Encoding.UTF8.GetString(msg.Value));
