@@ -28,7 +28,7 @@ namespace System.EventSourcing.AspNetCore.Kafka
         CancellationTokenSource cancellationSrc;
         readonly IServiceScopeFactory _scopeFactory;
         Consumer<string, byte[]> kafka_consumer;
-        string _pattern = @"^(?<subject>[a-zA-Z0-9_]*)\.(?<action>[a-zA-Z0-9_]*)$";
+        string _pattern = @"^(?<subject>[a-zA-Z0-9\.\/_-]*)\.(?<action>[a-zA-Z0-9_]*)$";
         readonly Regex _regex;
         readonly KafkaListenerSettings _config;
         readonly ILogger _logger;
