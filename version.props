@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
-      <VersionPrefix>1.0.7</VersionPrefix>
-      <VersionSuffix>alpha02</VersionSuffix>
-      <AssemblyVersion>1.0.7.0</AssemblyVersion>
+      <VersionPrefix>1.0.8</VersionPrefix>
+      <!--<VersionSuffix>alpha02</VersionSuffix>-->
+      <AssemblyVersion>1.0.8.0</AssemblyVersion>
     </PropertyGroup>
 </Project>
