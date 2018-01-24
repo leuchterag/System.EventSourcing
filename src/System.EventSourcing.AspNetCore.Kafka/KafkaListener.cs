@@ -121,8 +121,13 @@ namespace System.EventSourcing.AspNetCore.Kafka
                                     Headers = headers
                                 };
 
+                                var responseFeature = new HttpResponseFeature
+                                {
+                                };
+
                                 var requestFeatures = new FeatureCollection();
                                 requestFeatures.Set<IHttpRequestFeature>(requestFeature);
+                                requestFeatures.Set<IHttpResponseFeature>(responseFeature);
 
                                 var context = application.CreateContext(requestFeatures);
 
