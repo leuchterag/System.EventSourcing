@@ -99,27 +99,7 @@ namespace System.EventSourcing.AspNetCore.Kafka
                             {
                                 var subject = HttpUtility.UrlEncode(match.Groups["subject"].Value);
                                 var action = match.Groups["action"].Value;
-
-                                var evnt = JsonConvert.DeserializeObject<KafkaEvent>(Encoding.UTF8.GetString(msg.Value));
-
-                                var headers = new HeaderDictionary { { "Content-Type", "application/json" } };
-
-                                foreach (var tag in evnt.Tags)
-                                {
-                                    headers.Add(tag.Key, tag.Value);
-                                }
-
-                                var body = Encoding.UTF8.GetBytes(evnt.Content.ToString());
-
-                                var requestFeature = new HttpRequestFeature
-                                {
-                                    Method = "PUT",
-                                    Path = $"/v1/events/{subject}.{action}",
-                                    Body = new MemoryStream(body),
-                                    Protocol = "http",
-                                    Scheme = "http",
-                                    Headers = headers
-                                };
+                                HttpRequestFeature requestFeature = RequestFactory(msg, subject, action);
 
                                 var responseFeature = new HttpResponseFeature
                                 {
@@ -175,6 +155,9 @@ namespace System.EventSourcing.AspNetCore.Kafka
 
             return Task.CompletedTask;
         }
+
+        internal RequestFactory RequestFactory { get; set; }
+       
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {

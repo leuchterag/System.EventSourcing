@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +9,6 @@ namespace System.EventSourcing.AspNetCore.Hosting
 {
 
     [Route("/v1/events/")]
-    //[Authorize]
     public class EventsController : Controller
     {
         private readonly IEnumerable<AspNetProjection> _projections;
@@ -21,7 +19,8 @@ namespace System.EventSourcing.AspNetCore.Hosting
         }
 
         [HttpPut("{encodedeventdescriptor}")]
-        public async Task Test(string encodedeventdescriptor)
+        [DisableFormValueModelBinding]
+        public async Task Test([FromRoute] string encodedeventdescriptor)
         {
             var eventdescriptor = HttpUtility.UrlDecode(encodedeventdescriptor);
             var candidates = _projections.Where(x => x.EventDescriptor.Equals(eventdescriptor, StringComparison.OrdinalIgnoreCase)).ToArray();
