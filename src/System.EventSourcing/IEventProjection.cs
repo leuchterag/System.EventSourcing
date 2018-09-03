@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-
-namespace System.EventSourcing
+﻿namespace System.EventSourcing
 {
     public interface IEventProjection
     {
