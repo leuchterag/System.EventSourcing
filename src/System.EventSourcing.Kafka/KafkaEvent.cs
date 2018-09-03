@@ -10,6 +10,6 @@ namespace System.EventSourcing.Kafka
         public IDictionary<string, string> Tags { get; set; }
 
         [JsonProperty(PropertyName = "cnt")]
-        public JToken Content { get; set; }
+        public JObject Content { get; set; }
     }
 }

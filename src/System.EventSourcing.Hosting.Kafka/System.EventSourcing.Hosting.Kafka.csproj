@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\System.EventSourcing.Hosting\System.EventSourcing.Hosting.csproj" />
+    <ProjectReference Include="..\System.EventSourcing.Kafka\System.EventSourcing.Kafka.csproj" />
+  </ItemGroup>
+
+</Project>

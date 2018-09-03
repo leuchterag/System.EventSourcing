@@ -20,7 +20,7 @@ namespace System.EventSourcing.Client.Kafka
                 {
                     using (var producer = new Producer<string, string>(config, new StringSerializer(Encoding.UTF8), new StringSerializer(Encoding.UTF8)))
                     {
-                        var kafkaEvent = new KafkaEvent { Tags = evnt.Tags, Content = JToken.Parse(evnt.Content) };
+                        var kafkaEvent = new KafkaEvent { Tags = evnt.Tags, Content = JObject.Parse(evnt.Content) };
                         var strContent = await Task.Run(() => JsonConvert.SerializeObject(kafkaEvent));
                         var message = await producer.ProduceAsync(topic, evnt.Name, strContent);
                     }
