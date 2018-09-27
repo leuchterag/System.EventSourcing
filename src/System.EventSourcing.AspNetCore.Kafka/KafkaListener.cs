@@ -12,12 +12,9 @@ using Confluent.Kafka;
 using Confluent.Kafka.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.EventSourcing.Kafka.Serialization;
 using System.Linq;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System.EventSourcing.Kafka;
 using System.Web;
 
 namespace System.EventSourcing.AspNetCore.Kafka
@@ -54,7 +51,7 @@ namespace System.EventSourcing.AspNetCore.Kafka
 
         public Task StartAsync<TContext>(IHttpApplication<TContext> application, CancellationToken cancellationToken)
         {
-            kafka_consumer = new Consumer<string, byte[]>(_config, new StringDeserializer(Encoding.UTF8), new ByteDeserializer());
+            kafka_consumer = new Consumer<string, byte[]>(_config, new StringDeserializer(Encoding.UTF8), new ByteArrayDeserializer());
 
             kafka_consumer.OnPartitionsAssigned +=
                 (_, parts) =>

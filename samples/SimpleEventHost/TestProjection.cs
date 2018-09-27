@@ -6,7 +6,9 @@ namespace SimpleEventHost
 {
     public class TestProjection : Projection<Tf1>
     {
+#pragma warning disable RECS0154 // This is a sample
         public TestProjection(IService svc)
+#pragma warning restore RECS0154 // This is a sample
         {
 
         }
