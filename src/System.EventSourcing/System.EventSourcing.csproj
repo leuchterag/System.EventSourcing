@@ -6,9 +6,5 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.5</TargetFramework>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <PackageReference Update="SourceLink.Test" Version="2.7.4" />
-  </ItemGroup>
 
 </Project>

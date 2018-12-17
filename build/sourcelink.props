@@ -2,27 +2,7 @@
 
   <PropertyGroup>
     <DebugType>embedded</DebugType>
-    <SourceLink>$(BaseIntermediateOutputPath)\sourcelink.json</SourceLink>
-    <RepoUri>https://tfs.leuchterag.ch/tfs/Individual/_apis/git/1087764a-fe62-429e-b2dc-24b38fcb1f6c/repositories/System.EventSourcing/items?api-version=1.0&amp;versionType=commit&amp;version={commit}&amp;scopePath=/*</RepoUri>
+    <EmbedAllSources>true</EmbedAllSources>
   </PropertyGroup>
-
-  <ItemGroup>
-    <!--<PackageReference Include="SourceLink.Test" Version="2.1.2" PrivateAssets="all" />-->
-    <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.0.0-*" />
-    <DotNetCliToolReference Include="dotnet-sourcelink" Version="2.0.0-*" />
-  </ItemGroup>
-  <Target Name="GenerateSourceLink" BeforeTargets="CoreCompile">
-    <Delete Files="$(SourceLink)" Condition="Exists('$(SourceLink)')" />
-
-    <Exec Command="git rev-parse HEAD" ConsoleToMSBuild="true">
-      <Output TaskParameter="ConsoleOutput" PropertyName="LatestCommit" />
-    </Exec>
-
-    <Exec Command="git rev-parse --show-toplevel" ConsoleToMSBuild="true">
-      <Output TaskParameter="ConsoleOutput" PropertyName="GitRootFolder" />
-    </Exec>
-
-    <WriteLinesToFile File="$(SourceLink)" Lines='{"documents": { "$([System.IO.Path]::GetFullPath(`$(GitRootFolder)/`).Replace(`\`, `\\`))*" : "$(RepoUri.Replace(`{commit}`, `$(LatestCommit)` ))" }}' />
-  </Target>
   
 </Project>
