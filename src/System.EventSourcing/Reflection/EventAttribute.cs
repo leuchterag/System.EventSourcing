@@ -1,4 +1,4 @@
-﻿namespace System.EventSourcing.Client.Reflection
+﻿namespace System.EventSourcing.Reflection
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public sealed class EventAttribute : Attribute

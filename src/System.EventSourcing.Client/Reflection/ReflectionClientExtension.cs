@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.EventSourcing.Reflection;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace System.EventSourcing.Client.Reflection

@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting.Kafka;
+using Newtonsoft.Json.Linq;
+using System.EventSourcing.Reflection;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace System.EventSourcing.Hosting
 {
@@ -26,9 +29,9 @@ namespace System.EventSourcing.Hosting
 
         public static IEventSourcingBuilder<IServiceCollection> Build(this IEventSourcingBuilder<IServiceCollection> builder) 
         {
-            foreach (var projectionType in builder.Projections)
+            foreach (var setup in builder.Setups)
             {
-                builder.Base.AddScoped(typeof(IEventProjection), projectionType);
+                setup(builder);
             }
 
             return builder;

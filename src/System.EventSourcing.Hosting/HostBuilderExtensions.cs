@@ -22,6 +22,8 @@ namespace Microsoft.Extensions.Hosting
         {
             builder.Base.ConfigureServices((ctx,services) =>
             {
+                services.AddScoped(typeof(IEventContext), typeof(EventContext));
+
                 var serviceBuilder = new ServiceEventSourcingBuilder
                 {
                     Base = services

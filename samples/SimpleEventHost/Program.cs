@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.EventSourcing.Hosting;
 using System.EventSourcing.Hosting.Kafka;
+using System.EventSourcing.Hosting.Reflection;
 
 namespace SimpleEventHost
 {
@@ -21,7 +22,7 @@ namespace SimpleEventHost
                     container.Configure<KafkaListenerSettings>(config =>
                     {
 
-                        config.BootstrapServers = new[] { "kafka:9092" };
+                        config.BootstrapServers = new[] { "localhost:29092" };
                         config.Topics = new[] { "topic1" };
                         config.ConsumerGroup = "group1";
                         config.DefaultTopicConfig = new Dictionary<string, object>
@@ -30,10 +31,12 @@ namespace SimpleEventHost
                         };
                     });
                 })
-                .AddEventSourcing(svc =>
+                .AddEventSourcing(es =>
                 {
-                    svc.FromKafka();
-                    svc.AddProjection<SampleProjection>();
+                    es.FromKafka();
+                    es.UseReflectionResolution();
+                    
+                    es.AddProjection<SampleProjection>();
                 })
                 .ConfigureLogging((ILoggingBuilder loggingBuilder) =>
                 {

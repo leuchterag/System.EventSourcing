@@ -2,7 +2,7 @@
 
 namespace System.EventSourcing
 {
-    public interface IProjection<TEvent> : IEventProjection
+    public interface IProjection<TEvent>
     {
         Task Handle(TEvent @event);
     }

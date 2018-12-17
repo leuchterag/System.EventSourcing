@@ -8,5 +8,7 @@ namespace System.EventSourcing.Hosting
         public IServiceCollection Base { get; set; }
 
         public IList<Type> Projections { get; set; } = new List<Type>();
+        
+        public IList<Action<IEventSourcingBuilder<IServiceCollection>>> Setups { get; set; } = new List<Action<IEventSourcingBuilder<IServiceCollection>>>();
     }
 }

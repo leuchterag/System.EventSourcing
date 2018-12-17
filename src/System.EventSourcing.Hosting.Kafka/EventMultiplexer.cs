@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting.Kafka;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting.Kafka;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
@@ -11,66 +12,33 @@ namespace System.EventSourcing.Hosting.Kafka
 {
     class EventMultiplexer : IMessageHandler<string, byte[]>
     {
-        IEnumerable<IEventProjection> Projections { get; }
+        private readonly IServiceProvider serviceProvider;
 
-        IDictionary<string, IEnumerable<IEventProjection>> GrouppedProjections { get; }
-
-        IDictionary<string, IEnumerable<Func<JObject, Task>>> ProjectionHandlers { get; }
-
-        public EventMultiplexer(IEnumerable<IEventProjection> projections)
+        public EventMultiplexer(IServiceProvider serviceProvider)
         {
-            Projections = projections;
-
-            GrouppedProjections = projections
-                .GroupBy(x => x.EventDescriptor)
-                .ToDictionary(x => x.Key, x => x.Select(y => y));
-
-            ProjectionHandlers = GrouppedProjections
-                .ToDictionary(x => x.Key, x => x.Value.Select(handler => ExtractHandler(handler)));
+            this.serviceProvider = serviceProvider;
         }
 
         public Task Handle(string name, byte[] payload)
         {
-            var @event = JsonConvert.DeserializeObject<KafkaEvent>(Encoding.UTF8.GetString(payload));
-
-            if (ProjectionHandlers.ContainsKey(name))
+            using(var scope = serviceProvider.CreateScope())
             {
-                var handlerTasks = ProjectionHandlers[name]
-                    .Select(x => x(@event.Content))
-                    .ToArray();
+                var @event = JsonConvert.DeserializeObject<KafkaEvent>(Encoding.UTF8.GetString(payload));
 
-                return Task.WhenAll(handlerTasks);
+                
+                if (@event.Tags != null && @event.Tags.Any())
+                {
+                    var context = scope.ServiceProvider.GetService<IEventContext>();
+
+                    foreach (var tag in @event.Tags)
+                    {
+                        context.Tags.Add(tag.Key, tag.Value);
+                    }
+                }
+
+                var handler = scope.ServiceProvider.GetService<MessageHandler>();
+                return handler(name, @event.Content);
             }
-
-            return Task.CompletedTask;
         }
-
-        /// <summary>
-        /// Extracts the generic type definition of the given projection and constructs a handler method which can be 
-        /// </summary>
-        /// <param name="projection">The projection for which to implement the </param>
-        /// <returns>Function that takes JObjects returns the task handling the projection</returns>
-        Func<JObject, Task> ExtractHandler(IEventProjection projection)
-        {
-            var projectionType = projection
-                .GetType()
-                .GetInterfaces()
-                .First(x =>
-                    x.IsGenericType &&
-                    x.GetGenericTypeDefinition() == typeof(IProjection<>))
-                .GenericTypeArguments
-                .First();
-
-            var handlerMethod = projection
-                .GetType()
-                .GetMethod(nameof(IProjection<object>.Handle));
-
-            return (JObject obj) => 
-            {
-                var unmarshalledEvent = obj.ToObject(projectionType);
-                return handlerMethod.Invoke(projection, new [] { unmarshalledEvent }) as Task;
-            };
-        }
-
     }
 }

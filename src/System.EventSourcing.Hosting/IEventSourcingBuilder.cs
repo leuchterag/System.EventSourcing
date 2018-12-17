@@ -6,6 +6,8 @@ namespace System.EventSourcing.Hosting
     {
         THostType Base { get; set; }
 
-        IList<Type> Projections { get; set; } 
+        IList<Type> Projections { get; set; }
+
+        IList<Action<IEventSourcingBuilder<THostType>>> Setups { get; set; }
     }
 }
