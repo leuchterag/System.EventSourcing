@@ -15,28 +15,21 @@ namespace SimpleEventHost
         {
             var host = new HostBuilder()
                 .UseConsoleLifetime()
-                .UseKafka()
-                .ConfigureServices(container =>
+                .UseKafka(config =>
                 {
                     // Configuration for the kafka consumer
-                    container.Configure<KafkaListenerSettings>(config =>
-                    {
-
-                        config.BootstrapServers = new[] { "localhost:29092" };
-                        config.Topics = new[] { "topic1" };
-                        config.ConsumerGroup = "group1";
-                        config.DefaultTopicConfig = new Dictionary<string, object>
-                        {
-                            { "auto.offset.reset", "smallest" }
-                        };
-                    });
+                    config.BootstrapServers = new[] { "localhost:29092" };
+                    config.Topics = new[] { "topic1" };
+                    config.ConsumerGroup = "group1";
+                    config.AutoOffsetReset = "Latest";
+                    config.AutoCommitIntervall = 5000;
+                    config.IsAutocommitEnabled = true;
                 })
                 .AddEventSourcing(es =>
                 {
-                    es.FromKafka();
-                    es.UseReflectionResolution();
-                    
-                    es.AddProjection<SampleProjection>();
+                    es.FromKafka()
+                        .UseReflectionResolution()
+                        .AddProjection<SampleProjection>();
                 })
                 .ConfigureLogging((ILoggingBuilder loggingBuilder) =>
                 {
