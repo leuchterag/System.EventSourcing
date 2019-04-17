@@ -27,7 +27,7 @@ namespace SimpleEventHost
 
         public Task Handle(SampleEvent @event)
         {
-            logger.LogInformation("captured event in projection:\n{event}\n{tags}", @event, context.Tags);
+            logger.LogInformation("captured event in projection:\n{event}\n{tags}\nId: {id}", @event, context.Tags, @event.Id);
 
             return Task.CompletedTask;
         }
