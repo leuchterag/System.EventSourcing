@@ -13,9 +13,9 @@ services:
         ZOO_MY_ID: 1
         ZOO_PORT: 2181
         ZOO_SERVERS: server.1=zoo:2888:3888
-    volumes:
-      - ./full-stack/zoo1/data:/data
-      - ./full-stack/zoo1/datalog:/datalog
+    # volumes:
+    #   - ./full-stack/zoo1/data:/data
+    #   - ./full-stack/zoo1/datalog:/datalog
 
 
   kafka:
