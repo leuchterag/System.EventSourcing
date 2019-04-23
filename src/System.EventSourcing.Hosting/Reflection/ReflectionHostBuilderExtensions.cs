@@ -33,7 +33,7 @@ namespace System.EventSourcing.Hosting.Reflection
                         .Where(y => y.GetGenericTypeDefinition() == typeof(IProjection<>))
                         .Select(y => new {ProjectionType = x, EventType = y});
                 })
-                .Select(x =>  // Pull all attributes on all types
+                .Select(x => // Pull all attributes on all types
                 {
                     var attributes = x.EventType
                         .GetGenericArguments()
@@ -43,7 +43,7 @@ namespace System.EventSourcing.Hosting.Reflection
                 })
                 .Where(x => x.Attributes.Any())
                 .SelectMany(x => x.Attributes.Select(y => new { x.Type, Attribute = y})) // fan-out the attributes to support one type having multiple attributes
-                .Select(x => new { x.Type, Name = $"{x.Attribute.Subject}.{x.Attribute.Action}"}) // format the action
+                .Select(x => new { x.Type, Name = $"{x.Attribute.Subject}.{x.Attribute.Action}" }) // format the action
                 .Select(x => new { x.Name, Handler = ExtractHandler(x.Type), Type = x.Type }) // and extract the handler for the action
                 .GroupBy(x => x.Name); // Form a group to bundle all projections for the same event type
 
