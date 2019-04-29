@@ -1,43 +1,38 @@
 version: '2'
 
 services:
-  zoo:
-    image: zookeeper:3.4.9
-    restart: unless-stopped
-    hostname: zoo
-    expose: 
-      - "21811"
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.0.1
+    hostname: zookeeper
+    container_name: zookeeper
     ports:
       - "2181:2181"
     environment:
-        ZOO_MY_ID: 1
-        ZOO_PORT: 2181
-        ZOO_SERVERS: server.1=zoo:2888:3888
-    # volumes:
-    #   - ./full-stack/zoo1/data:/data
-    #   - ./full-stack/zoo1/datalog:/datalog
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
 
-
-  kafka:
-    image: confluentinc/cp-kafka:3.3.0
-    hostname: kafka
+  broker:
+    image: confluentinc/cp-enterprise-kafka:5.0.1
+    hostname: broker
+    container_name: broker
+    depends_on:
+      - zookeeper
     ports:
       - "9092:9092"
-    expose: 
-      - "9092"
-    links:
-      - zoo
+      - "29092:29092"
     environment:
-      # add the entry "127.0.0.1    kafka1" to your /etc/hosts file
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
-      KAFKA_ZOOKEEPER_CONNECT: "zoo:2181"
       KAFKA_BROKER_ID: 1
-      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    # volumes:
-    #   - ./full-stack/kafka1/data:/var/lib/kafka/data
-    depends_on:
-      - zoo
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:9092
+      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
 
   kafka-rest-proxy:
     image: confluentinc/cp-kafka-rest:3.3.0
@@ -45,13 +40,13 @@ services:
     ports:
       - "8082:8082"
     links:
-      - zoo
-      - kafka
+      - zookeeper
+      - broker
     environment:
       KAFKA_REST_ZOOKEEPER_CONNECT: zoo:2181
       KAFKA_REST_LISTENERS: http://0.0.0.0:8082/
       KAFKA_REST_HOST_NAME: kafka-rest-proxy
       KAFKA_REST_BOOTSTRAP_SERVERS: kafka:9092
     depends_on:
-      - zoo
-      - kafka
+      - zookeeper
+      - broker

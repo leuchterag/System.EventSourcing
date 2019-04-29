@@ -18,7 +18,7 @@ namespace SimpleEventHost
                 .UseKafka(config =>
                 {
                     // Configuration for the kafka consumer
-                    config.BootstrapServers = new[] { "kafka:9092" };
+                    config.BootstrapServers = new[] { "localhost:29092" };
                     config.Topics = new[] { "topic1" };
                     config.ConsumerGroup = "group1";
                     config.AutoOffsetReset = "Latest";

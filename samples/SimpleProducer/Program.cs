@@ -15,7 +15,7 @@ namespace SimpleProducer
         static async Task Main()
         {
             var client = new EventClient()
-                .UseKafka("topic1", "kafka:9092")
+                .UseKafka("topic1", "localhost:29092")
                 .UseReflectionNameResolution()
                 .UseJsonSerialization();
             var stopwatch = new Stopwatch();
@@ -28,7 +28,7 @@ namespace SimpleProducer
             stopwatch.Stop();
             Console.WriteLine($"Produced 100 messages in {stopwatch.ElapsedMilliseconds}ms");
 
-            var config = new ProducerConfig { BootstrapServers = "kafka:9092" };
+            var config = new ProducerConfig { BootstrapServers = "localhost:29092" };
             var builder = new ProducerBuilder<string, string>(config);
             using (var producer = builder.Build())
             {
