@@ -1,5 +1,4 @@
 <Project>
-  <Import Project="dependencies.props" />
 
   <PropertyGroup>
     <Product>Leuchter EventSourcing Framework</Product>
@@ -10,12 +9,16 @@
     <Description>Base class library for EventSourcing</Description>
   </PropertyGroup>
 
-
   <ItemGroup>
-    <PackageReference Include="MinVer" Version="1.0.0">
+    <PackageReference Include="MinVer" Version="1.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
+  <PropertyGroup>
+    <DebugType>embedded</DebugType>
+    <EmbedAllSources>true</EmbedAllSources>
+  </PropertyGroup>
+  
 </Project>
