@@ -50,3 +50,13 @@ services:
     depends_on:
       - zookeeper
       - broker
+
+  consumer:
+    build:
+      context: ./SimpleEventHost
+      dockerfile: Dockerfile
+    image: simple_consumer:latest
+    depends_on:
+      - broker
+    links:
+      - broker
