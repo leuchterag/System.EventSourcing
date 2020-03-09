@@ -1,0 +1,9 @@
+[*]
+insert_final_newline = true
+
+[*.{cs,csproj,json}]
+charset = utf-8
+
+[*.{json}]
+indent_style = space
+indent_size = 4

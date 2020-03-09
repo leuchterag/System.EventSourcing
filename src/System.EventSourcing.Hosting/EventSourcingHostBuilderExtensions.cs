@@ -22,18 +22,7 @@ namespace System.EventSourcing.Hosting
                 throw new ArgumentException($"Type {typeof(TProjection).Name} cannot be registered because it does not implement IProjection<TEvent>");
             }
 
-            builder.Projections.Add(typeof(TProjection));
-            return builder;
-        }
-
-
-        public static IEventSourcingBuilder<IServiceCollection> Build(this IEventSourcingBuilder<IServiceCollection> builder) 
-        {
-            foreach (var setup in builder.Setups)
-            {
-                setup(builder);
-            }
-
+            builder.Base.AddTransient(typeof(TProjection));
             return builder;
         }
     }

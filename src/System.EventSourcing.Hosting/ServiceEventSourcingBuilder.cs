@@ -5,10 +5,23 @@ namespace System.EventSourcing.Hosting
 {
     class ServiceEventSourcingBuilder : IEventSourcingBuilder<IServiceCollection>
     {
+        private readonly IList<Action> buildHooks = new List<Action>();
+
         public IServiceCollection Base { get; set; }
 
         public IList<Type> Projections { get; set; } = new List<Type>();
+
+        public void OnBuild(Action onBuildHook)
+        {
+            buildHooks.Add(onBuildHook);
+        }
         
-        public IList<Action<IEventSourcingBuilder<IServiceCollection>>> Setups { get; set; } = new List<Action<IEventSourcingBuilder<IServiceCollection>>>();
+        public void Build() 
+        {
+            foreach (var hook in buildHooks)
+            {
+                hook();
+            }
+        }
     }
 }

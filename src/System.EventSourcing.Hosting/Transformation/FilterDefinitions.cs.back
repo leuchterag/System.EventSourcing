@@ -1,0 +1,7 @@
+namespace System.EventSourcing.Hosting.Transformation
+{
+    public class FilterExpression<TKey, TContent>
+    {
+        public Func<TKey, TContent, bool> IsMatch { get; set; }
+    }
+}

@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Collections.Generic;
 
 namespace System.EventSourcing.Hosting
 {
@@ -10,8 +10,15 @@ namespace System.EventSourcing.Hosting
 
         public IHostBuilder Base { get; set; }
 
-        public IList<Type> Projections { get; set; } = new List<Type>();
+        public IList<Action> BuildHooks { get; set; } = new List<Action>();
 
-        public IList<Action<IEventSourcingBuilder<IHostBuilder>>> Setups { get; set; } = new List<Action<IEventSourcingBuilder<IHostBuilder>>>();
+        public void OnBuild(Action onBuildHook)
+        {
+            BuildHooks.Add(onBuildHook);
+        }
+
+        // public IList<Type> Projections { get; set; } = new List<Type>();
+
+        // public IList<Action<IEventSourcingBuilder<IHostBuilder>>> Setups { get; set; } = new List<Action<IEventSourcingBuilder<IHostBuilder>>>();
     }
 }

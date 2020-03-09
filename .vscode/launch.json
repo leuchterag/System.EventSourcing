@@ -5,6 +5,18 @@
    "version": "0.2.0",
    "configurations": [
         {
+            "name": "Version Transformation Sample",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/samples/VersionMigrationTransformationEventHost/bin/Debug/netcoreapp2.1/VersionMigrationTransformationEventHost.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/samples/VersionMigrationTransformationEventHost",
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
             "name": ".NET Core Launch (console)",
             "type": "coreclr",
             "request": "launch",

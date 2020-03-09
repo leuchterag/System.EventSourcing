@@ -1,11 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Kafka;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
+using System.EventSourcing.Hosting.Json;
 using System.EventSourcing.Hosting;
 using System.EventSourcing.Hosting.Kafka;
-using System.EventSourcing.Hosting.Reflection;
 
 namespace SimpleEventHost
 {
@@ -28,7 +25,7 @@ namespace SimpleEventHost
                 .AddEventSourcing(es =>
                 {
                     es.FromKafka()
-                        .UseReflectionResolution()
+                        .UseProjections()
                         .AddProjection<SampleProjection>();
                 })
                 .ConfigureLogging((ILoggingBuilder loggingBuilder) =>
