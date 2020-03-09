@@ -43,16 +43,16 @@ namespace SimpleEventHost
                                     tran =>
                                     {
                                         tran
-                                            .KeysMatchingRegex(@".*")
+                                            .KeysMatchingRegex(@"v1/template.created")
                                             .Transform(
-                                                (x,y) =>
+                                                (origin, transformed) =>
                                                 {
                                                     var keyRegex = new Regex(@"(?<protocol>\w+):\/\/(?<domain>[\w@][\w.:@]+)(?<path>\/?[\w\.?=%&=\-@\/$,]*)");
-                                                    if (keyRegex.IsMatch(x.Key))
+                                                    if (keyRegex.IsMatch(origin.Key))
                                                     {
-                                                        var match = keyRegex.Match(x.Key);
-                                                        y.Content = x.Content;
-                                                        y.Key = $"{match.Groups["protocol"]}://{match.Groups["domain"]}/v2{match.Groups["path"]}";
+                                                        var match = keyRegex.Match(origin.Key);
+                                                        transformed.Content = origin.Content;
+                                                        transformed.Key = $"{match.Groups["protocol"]}://{match.Groups["domain"]}/v2{match.Groups["path"]}";
                                                     }
                                                 })
                                             .DropOrigin();

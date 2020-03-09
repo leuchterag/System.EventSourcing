@@ -16,9 +16,5 @@ namespace System.EventSourcing.Hosting
         {
             BuildHooks.Add(onBuildHook);
         }
-
-        // public IList<Type> Projections { get; set; } = new List<Type>();
-
-        // public IList<Action<IEventSourcingBuilder<IHostBuilder>>> Setups { get; set; } = new List<Action<IEventSourcingBuilder<IHostBuilder>>>();
     }
 }
