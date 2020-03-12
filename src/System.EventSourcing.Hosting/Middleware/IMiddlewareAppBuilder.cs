@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace System.EventSourcing.Hosting.Middleware
 {
-    public interface IMiddlewareAppBuilder<TContext, TBaseContextType> : IOnBuildHandler
+    public interface IMiddlewareAppBuilder<TContext, TBaseContextType> : IConfigurable
         where TContext : IContext
     {
         IEventSourcingBuilder<TBaseContextType> Base { get; set; }

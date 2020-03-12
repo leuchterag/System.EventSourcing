@@ -19,7 +19,7 @@ namespace System.EventSourcing.Hosting.Projections
             
             app.Use((ctx, next) => middleware(ctx, next));
 
-            app.OnBuild(() => middleware = projBuilder.Build());
+            app.Configure(() => middleware = projBuilder.Build());
 
             return app;
         }

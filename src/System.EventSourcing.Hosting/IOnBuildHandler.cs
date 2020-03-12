@@ -1,7 +1,7 @@
 namespace System.EventSourcing.Hosting
 {
-    public interface IOnBuildHandler
+    public interface IConfigurable
     {
-        void OnBuild(Action onBuildHook);
+        void Configure(Action onBuildHook);
     }
 }

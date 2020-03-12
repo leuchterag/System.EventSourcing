@@ -11,7 +11,7 @@ namespace System.EventSourcing.Hosting.Middleware
             Action<IMiddlewareAppBuilder<TContext, IServiceCollection>> middlewareFactory)
             where TContext : IContext
         {
-            builder.OnBuild(
+            builder.Configure(
                 () => {
                     var appBuilder = new MiddlewareAppBuilder<TContext, IServiceCollection>{ Base = builder};
                     middlewareFactory(appBuilder);

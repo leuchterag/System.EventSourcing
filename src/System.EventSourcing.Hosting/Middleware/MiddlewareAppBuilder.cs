@@ -21,7 +21,6 @@ namespace System.EventSourcing.Hosting.Middleware
             }
 
             // Assemble the middlewares sequentially
-            Func<Task> lowestNext = () => Task.CompletedTask;
             Func<TContext, Task> seed = (ctx) => Task.CompletedTask;
             var reversedMiddlewares = Middlewares.Reverse();
             var handler = reversedMiddlewares.Aggregate(seed, (x, y) => (TContext ctx) => y(ctx, x));
@@ -30,9 +29,9 @@ namespace System.EventSourcing.Hosting.Middleware
             return middleware;
         }
 
-        public void OnBuild(Action onBuildHook)
+        public void Configure(Action configurationHook)
         {
-            buildHooks.Add(onBuildHook);
+            buildHooks.Add(configurationHook);
         }
 
         public void Use(Func<TContext, Func<TContext, Task>, Task> middleware) => Middlewares.Add(middleware);

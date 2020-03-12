@@ -15,18 +15,4 @@ namespace System.EventSourcing.Hosting.Projections
 
         Func<TContext, Func<Task>, Task> Build();
     }
-
-    public class ProjectionGroup
-    {
-        public string EventKey { get; set; }
-
-        public IEnumerable<ProjectionSet> Projections { get; set; }
-    }
-    
-    public class ProjectionSet
-    {
-        public Type ProjectionType { get; set; }
-
-        public Type EventType { get; set; }
-    }
 }

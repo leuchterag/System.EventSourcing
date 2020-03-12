@@ -11,7 +11,7 @@ namespace System.EventSourcing.Hosting
 
         public IList<Type> Projections { get; set; } = new List<Type>();
 
-        public void OnBuild(Action onBuildHook)
+        public void Configure(Action onBuildHook)
         {
             buildHooks.Add(onBuildHook);
         }

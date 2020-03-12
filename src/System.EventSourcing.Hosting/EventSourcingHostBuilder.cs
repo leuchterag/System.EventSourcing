@@ -12,7 +12,7 @@ namespace System.EventSourcing.Hosting
 
         public IList<Action> BuildHooks { get; set; } = new List<Action>();
 
-        public void OnBuild(Action onBuildHook)
+        public void Configure(Action onBuildHook)
         {
             BuildHooks.Add(onBuildHook);
         }

@@ -2,12 +2,8 @@
 
 namespace System.EventSourcing.Hosting
 {
-    public interface IEventSourcingBuilder<THostType> : IOnBuildHandler
+    public interface IEventSourcingBuilder<THostType> : IConfigurable
     {
         THostType Base { get; set; }
-
-        // IList<Action<IEventSourcingBuilder<THostType>>> Setups { get; set; }
-
-        // IList<Type> Projections { get; set; }
     }
 }
