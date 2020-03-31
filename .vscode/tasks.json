@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/samples/SimpleEventHost/SimpleEventHost.csproj"
+                "${workspaceFolder}"
             ],
             "problemMatcher": "$msCompile"
         }

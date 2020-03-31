@@ -36,7 +36,7 @@ namespace System.EventSourcing.Hosting.Kafka
                     }
                 }
 
-                var handler = scope.ServiceProvider.GetService<MessageHandler>();
+                var handler = scope.ServiceProvider.GetService<MessageHandler<string, JObject>>();
                 return handler(name, @event.Content);
             }
         }

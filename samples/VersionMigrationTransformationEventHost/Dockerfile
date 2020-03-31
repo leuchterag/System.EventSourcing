@@ -1,0 +1,5 @@
+FROM mcr.microsoft.com/dotnet/core/runtime:2.1-alpine
+RUN apk update && \
+    apk add librdkafka librdkafka-dev
+COPY bin/Release/netcoreapp2.1/publish /app
+ENTRYPOINT dotnet /app/SimpleEventHost.dll

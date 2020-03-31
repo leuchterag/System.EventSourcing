@@ -48,7 +48,7 @@ namespace SimpleProducer
         }
     }
 
-    [Event("sample.service.com/sample", "created")]
+    [Event("https://sample.service.com/sample", "created")]
     public class SampleEvent
     {
         public string Id { get; set; }
