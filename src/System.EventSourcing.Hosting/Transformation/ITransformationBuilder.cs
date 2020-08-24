@@ -9,7 +9,7 @@ namespace System.EventSourcing.Hosting.Transformation
         
         Func<TContext, bool> Condition { get; set; }
         
-        Func<TContext, TContext> Transformation { get; set; }
+        Func<TContext, Task<TContext>> Transformation { get; set; }
 
         Func<TContext, Func<TContext, Task>, Task> Handler { get; set; }
     }

@@ -17,15 +17,25 @@
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
-            "name": ".NET Core Launch (console)",
+            "name": "Run Simple Consumer",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/samples/SimpleEventHost/bin/Debug/netcoreapp2.1/SimpleEventHost.dll",
             "args": [],
             "cwd": "${workspaceFolder}/samples/SimpleEventHost",
-            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "name": "Run Producer",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/samples/SimpleProducer/bin/Debug/netcoreapp2.1/SimpleProducer.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/samples/SimpleEventHost",
             "console": "internalConsole",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"

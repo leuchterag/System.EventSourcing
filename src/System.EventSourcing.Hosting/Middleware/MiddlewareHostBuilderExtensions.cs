@@ -20,11 +20,11 @@ namespace System.EventSourcing.Hosting.Middleware
 
                     builder.Base.AddScoped(sp => 
                     {
-                        MessageHandler<TKey, TContent> handler = (key, content) =>
+                        MessageHandler<TKey, TContent> handler = async (key, content) =>
                         {
                             var context = transform(key, content);
                             context.Services = sp;
-                            return middleware(context);
+                            await middleware(context);
                         };
                         return handler;
                     });

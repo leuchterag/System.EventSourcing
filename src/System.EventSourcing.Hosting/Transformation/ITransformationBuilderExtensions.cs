@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace System.EventSourcing.Hosting.Transformation
 {
     public static class ITransformationBuilderExtensions
@@ -16,16 +18,16 @@ namespace System.EventSourcing.Hosting.Transformation
 
         public static ITransformationBuilder<TContext> Transform<TContext>(
             this ITransformationBuilder<TContext> transformationBuilder,
-            Action<TContext, TContext> transformation)
+            Func<TContext, TContext, Task> transformation)
             where TContext : IContext, new()
         {
-            Func<TContext, TContext> transformationFactory = 
-                (TContext origin) => 
+            Func<TContext, Task<TContext>> transformationFactory =
+                async (TContext origin) =>
                 {
                     var transformedContext = new TContext();
                     transformedContext.Services = origin.Services;
 
-                    transformation(origin, transformedContext);
+                    await transformation(origin, transformedContext);
 
                     return transformedContext;
                 };
@@ -41,16 +43,16 @@ namespace System.EventSourcing.Hosting.Transformation
             where TContext : IContext, new()
         {
             transformationBuilder.Base.Handlers.Add(
-                async (origin, next) =>
+                async origin =>
                 {
-                    await next(origin);
-                    
                     if (transformationBuilder.Condition(origin))
                     {
-                        var transformed = transformationBuilder.Transformation(origin);
+                        var transformed = await transformationBuilder.Transformation(origin);
 
-                        await next(transformed);    
+                        return (true, true, transformed);
                     }
+                    
+                    return (true, false, default(TContext));
                 });
 
             return transformationBuilder;
@@ -60,27 +62,19 @@ namespace System.EventSourcing.Hosting.Transformation
             this ITransformationBuilder<TContext> transformationBuilder)
             where TContext : IContext, new()
         {
-            transformationBuilder.Base.Handlers.Add(async (origin, next) =>
+            transformationBuilder.Base.Handlers.Add(async origin =>
             {
                 if (transformationBuilder.Condition(origin))
                 {
-                    var transformed = transformationBuilder.Transformation(origin);
+                    var transformed = await transformationBuilder.Transformation(origin);
 
-                    await next(transformed);
+                    return(false, true, transformed);
                 }
+
+                return (false, false, default(TContext));
             });
 
             return transformationBuilder;
-        }
-        
-        public static void HandleUntransformed<TContext>(
-            this ITransformationMiddlewareBuilder<TContext> middlewareBuilder)
-            where TContext : IContext, new()
-        {
-            middlewareBuilder.Handlers.Add(async (origin, next) =>
-            {
-                await next(origin);
-            });
         }
     }
 }

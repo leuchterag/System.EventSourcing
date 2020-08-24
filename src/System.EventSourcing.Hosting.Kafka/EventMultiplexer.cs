@@ -19,7 +19,7 @@ namespace System.EventSourcing.Hosting.Kafka
             this.serviceProvider = serviceProvider;
         }
 
-        public Task Handle(string name, byte[] payload)
+        public async Task Handle(string name, byte[] payload)
         {
             using(var scope = serviceProvider.CreateScope())
             {
@@ -37,7 +37,8 @@ namespace System.EventSourcing.Hosting.Kafka
                 }
 
                 var handler = scope.ServiceProvider.GetService<MessageHandler<string, JObject>>();
-                return handler(name, @event.Content);
+                
+                await handler(name, @event.Content);
             }
         }
     }

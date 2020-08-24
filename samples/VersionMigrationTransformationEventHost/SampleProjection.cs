@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace SimpleEventHost
 {
 
-    [Event("https://sample.service.com/sample", "created")]
+    [Event("https://sample.service.com/v1/sample", "created")]
     public class SampleEvent
     {
         public string Id { get; set; }
@@ -25,11 +25,13 @@ namespace SimpleEventHost
             this.logger = logger;
         }
 
-        public Task Handle(SampleEvent @event)
+        public async Task Handle(SampleEvent @event)
         {
             logger.LogInformation("captured event in projection:\n{event}\n{tags}\nId: {id}", @event, context.Tags, @event.Id);
 
-            return Task.CompletedTask;
+            await Task.Delay(1000);
+
+            logger.LogInformation("completed event {id}", @event.Id);
         }
     }
 }

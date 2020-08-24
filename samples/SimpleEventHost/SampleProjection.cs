@@ -24,11 +24,13 @@ namespace SimpleEventHost
             this.logger = logger;
         }
 
-        public Task Handle(SampleEvent @event)
+        public async Task Handle(SampleEvent @event)
         {
             logger.LogInformation("captured event in projection:\n{event}\n{tags}\nId: {id}", @event, context.Tags, @event.Id);
+            
+            await Task.Delay(5000);
 
-            return Task.CompletedTask;
+            logger.LogInformation($"processed event no {@event.Id}");
         }
     }
 }

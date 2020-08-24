@@ -11,6 +11,7 @@ using System.EventSourcing;
 using System.EventSourcing.Hosting.Transformation;
 using System.EventSourcing.Hosting.Json.Transformation;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace SimpleEventHost
 {
@@ -43,21 +44,21 @@ namespace SimpleEventHost
                                     tran =>
                                     {
                                         tran
-                                            .KeysMatchingRegex(@"v1/template.created")
+                                            .KeysMatchingRegex(@"v1/sample.created")
                                             .Transform(
                                                 (origin, transformed) =>
                                                 {
-                                                    var keyRegex = new Regex(@"(?<protocol>\w+):\/\/(?<domain>[\w@][\w.:@]+)(?<path>\/?[\w\.?=%&=\-@\/$,]*)");
+                                                    var keyRegex = new Regex(@"(?<protocol>\w+):\/\/(?<domain>[\w@][\w.:@]+)\/v1\/(?<path>\/?[\w\.?=%&=\-@\/$,]*)");
                                                     if (keyRegex.IsMatch(origin.Key))
                                                     {
                                                         var match = keyRegex.Match(origin.Key);
                                                         transformed.Content = origin.Content;
-                                                        transformed.Key = $"{match.Groups["protocol"]}://{match.Groups["domain"]}/v2{match.Groups["path"]}";
+                                                        transformed.Key = $"{match.Groups["protocol"]}://{match.Groups["domain"]}/v2/{match.Groups["path"]}";
                                                     }
+
+                                                    return Task.CompletedTask;
                                                 })
                                             .DropOrigin();
-                                        
-                                        tran.HandleUntransformed();
                                     }
                                 );
 
