@@ -27,7 +27,7 @@ namespace SimpleEventHost
                     config.BootstrapServers = new[] { "localhost:29092" };
                     config.Topics = new[] { "topic1" };
                     config.ConsumerGroup = "group1";
-                    config.AutoOffsetReset = "Latest";
+                    config.AutoOffsetReset = "Earliest";
                     config.AutoCommitIntervall = 5000;
                     config.IsAutocommitEnabled = true;
                 })
@@ -73,6 +73,7 @@ namespace SimpleEventHost
                                     
                             })
                         .AddProjection<SampleProjection>()
+                        .AddProjection<SampleProjectionV11>()
                         .AddProjection<SampleProjectionV2>();
                 })
                 .ConfigureLogging((ILoggingBuilder loggingBuilder) =>

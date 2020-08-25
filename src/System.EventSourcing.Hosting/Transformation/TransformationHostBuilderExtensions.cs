@@ -34,9 +34,13 @@ namespace System.EventSourcing.Hosting.Transformation
                     var failedTranformations = transforms
                         .Where(x => x.IsFaulted || x.IsCanceled)
                         .Count();
-                    logger.LogWarning("Failed to apply {failed} of {allTranformations}", failedTranformations, transformedContexts.Count());
+                    if (failedTranformations != 0)
+                    {
+                        logger.LogWarning("Failed to apply {failed} of {allTranformations}", failedTranformations, transformedContexts.Count());
+                    }
 
-                    if (transformedContexts.Any(x => x.considerOrigin))
+                    if (!transformedContexts.Any(x => x.transformApplies)
+                        || transformedContexts.Any(x => x.considerOrigin))
                     {
                         await next(ctx);
                     }
