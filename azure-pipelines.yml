@@ -24,40 +24,70 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
-steps:
-- task: DotNetCoreCLI@2
-  displayName: Dotnet Restore
-  inputs:
-    command: 'restore'
-    feedsToUse: 'select'
-    verbosityRestore: 'Minimal'
+jobs:
+- job: build
+  displayName: Build
+  timeoutInMinutes: 10
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: DotNetCoreCLI@2
+    displayName: Dotnet Restore
+    inputs:
+      command: 'restore'
+      feedsToUse: 'select'
+      verbosityRestore: 'Minimal'
 
-- task: DotNetCoreCLI@2
-  displayName: Dotnet Build
-  inputs:
-    command: 'build'
-    arguments: '-c $(buildConfiguration)'
+  - task: DotNetCoreCLI@2
+    displayName: Dotnet Build
+    inputs:
+      command: 'build'
+      arguments: '-c $(buildConfiguration)'
 
-- task: DotNetCoreCLI@2
-  displayName: Dotnet Test
-  inputs:
-    command: 'test'
+  - task: DotNetCoreCLI@2
+    displayName: Dotnet Test
+    inputs:
+      command: 'test'
 
-- task: DotNetCoreCLI@2
-  displayName: Dotnet Pack
-  inputs:
-    command: 'pack'
-    packagesToPack: '$(Build.SourcesDirectory)/src/**/*.csproj'
-    nobuild: true
-    includesource: true
-    versioningScheme: 'off'
-    verbosityPack: 'Normal'
+  - task: DotNetCoreCLI@2
+    displayName: Dotnet Pack
+    inputs:
+      command: 'pack'
+      packagesToPack: '$(Build.SourcesDirectory)/src/**/*.csproj'
+      nobuild: true
+      includesource: true
+      versioningScheme: 'off'
+      verbosityPack: 'Normal'
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Artifacts
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'drop'
+      publishLocation: 'Container'
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+
+- deployment: Publish
+  displayName: Publish
+  environment: Production
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - task: DownloadBuildArtifacts@0
+          inputs:
+            downloadType: single
+            artifactName: drop
+            downloadPath: '$(Pipeline.Workspace)'
 
-- task: PublishBuildArtifacts@1
-  displayName: Publish Artifacts
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        - task: NuGetCommand@2
+          displayName: 'NuGet push'
+          inputs:
+            command: push
+            packagesToPush: '$(Pipeline.Workspace)/**/*.nupkg;!$(Pipeline.Workspace)/**/*.symbols.nupkg'
+            nuGetFeedType: external
+            publishFeedCredentials: 'Nuget LAG_MIIN'
+            verbosityPush: Normal
+
